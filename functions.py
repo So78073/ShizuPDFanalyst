@@ -115,9 +115,3 @@ def analyze_pdf_colors(pdf_path):
         
         # Exibe o resultado
         print(f"Pagina {page_num + 1} - {color_percentage:.2f}%     colorida")
-
-pdf_path = "after\Fichário1.pdf"  # Caminho do arquivo PDF
-output_pdf_path_color = "comCor.pdf"  # Caminho para salvar o PDF com páginas coloridas
-output_pdf_path_bw = "semCor.pdf"  # Caminho para salvar o PDF com páginas preto e branco
-
-create_pdf_with_color_pages(pdf_path, output_pdf_path_color, output_pdf_path_bw)
