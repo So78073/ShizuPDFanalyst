@@ -21,7 +21,8 @@ class MainWindow(QWidget):
         """)
 
         # Diretório de saída padrão
-        self.default_output_dir = os.path.join(os.getcwd(), 'output')
+        self.default_output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'output')
+        print(self.default_output_dir)
         if not os.path.exists(self.default_output_dir):
             os.makedirs(self.default_output_dir)
         self.output_path = self.default_output_dir
@@ -192,69 +193,53 @@ class MainWindow(QWidget):
         # Atualize a interface do usuário com os resultados
         self.update_log(result)
 
-    def create_pdf_with_color_pages(self, input_path, output_path_color, output_path_bw, separate_color, separate_bw):
-        # Função que será executada
-        func.create_pdf_with_color_pages(self.selected_path, "output/comCor", "output/semCor", mode=(True, False))
-        # Atualize a interface do usuário com os resultados
+    def create_pdf_with_color_pages(self, output_path_color, output_path_bw, mode=(True, False)):
+        func.create_pdf_with_color_pages(self.selected_path, output_path_color, output_path_bw, mode)
         self.update_log(f"PDF com páginas coloridas e P/B criado em: {output_path_color}, {output_path_bw}")
 
     def analyze_for_printing(self, input_path, output_path_color, output_path_bw, separate_color, separate_bw):
-        # Função que será executada
-        func.analyze_for_printing(self.selected_path, "output/comCor", "output/semCor", mode=(True, False))
-        # Atualize a interface do usuário com os resultados
-        self.update_log(f"Análise para impressão concluída. Arquivos separados em: {output_path_color}, {output_path_bw}")
+        # Funções de análise adicionais
+
+        # -- AQUII --
+        if self.checkbox_func2.isChecked():
+            func.some_other_function_1(input_path, output_path_color, separate_color)
+        if self.checkbox_func3.isChecked():
+            func.some_other_function_2(input_path, output_path_bw, separate_bw)
+        if self.checkbox_func4.isChecked():
+            self.create_pdf_with_color_pages(output_path_color, output_path_bw, (separate_color, separate_bw))
+
+    def on_send_clicked(self):
+        if not self.selected_path:
+            QMessageBox.warning(self, "Atenção", "Por favor, escolha um diretório ou arquivo.")
+            return
+
+        if not self.output_path:
+            QMessageBox.warning(self, "Atenção", "Por favor, escolha um diretório de saída.")
+            return
+
+        # Verifique qual função foi selecionada e chame-a
+        if self.checkbox_func1.isChecked():
+            self.analyze_pdf(threshold)
+
+        if self.checkbox_func4.isChecked():
+            separate_color = self.checkbox_additional1.isChecked()
+            separate_bw = self.checkbox_additional2.isChecked()
+            output_path_color = os.path.join(self.output_path, 'coloridas.pdf')
+            output_path_bw = os.path.join(self.output_path, 'preto_e_branco.pdf')
+            
+            self.analyze_for_printing(self.selected_path, output_path_color, output_path_bw, separate_color, separate_bw)
+
+        self.log_text.append("Análise concluída.")
 
     def update_log(self, message):
         self.log_text.append(message)
 
-    def on_send_clicked(self):
-        if not self.selected_path:
-            self.show_error_message("Nenhum arquivo ou diretório foi escolhido.")
-            return
-
-        # Mostrar a mensagem de carregamento
-        loading_msg = QMessageBox(self)
-        loading_msg.setIcon(QMessageBox.Information)
-        loading_msg.setWindowTitle("Processando")
-        loading_msg.setText("Aguarde, processando...")
-        loading_msg.setStandardButtons(QMessageBox.NoButton)
-        loading_msg.setStyleSheet("""
-            background-color: #3c3f41;
-            color: #ffffff;
-            font-size: 14px;
-        """)
-        loading_msg.show()
-        QApplication.processEvents()  # Força a atualização da interface
-
-        # Chamar funções de acordo com checkboxes
-        if self.checkbox_func1.isChecked():
-            self.analyze_pdf(threshold)
-        if self.checkbox_func2.isChecked():
-            self.analyze_for_printing(self.selected_path, self.output_path, "output/comCor", "output/semCor", True, False)
-        if self.checkbox_func3.isChecked():
-            self.analyze_for_printing(self.selected_path, self.output_path, "output/comCor", "output/semCor", True, False)
-        if self.checkbox_func4.isChecked():
-            separate_color = self.checkbox_additional1.isChecked()
-            separate_bw = self.checkbox_additional2.isChecked()
-            self.create_pdf_with_color_pages(self.selected_path, "output/comCor", "output/semCor", separate_color, separate_bw)
-
-        # Fechar a mensagem de carregamento
-        loading_msg.close()
-
-        self.update_log("Processamento concluído.")
-
-    def show_error_message(self, message):
-        error_msg = QMessageBox(self)
-        error_msg.setIcon(QMessageBox.Critical)
-        error_msg.setWindowTitle("Erro")
-        error_msg.setText(message)
-        error_msg.setStandardButtons(QMessageBox.Ok)
-        error_msg.setStyleSheet("""
-            background-color: #3c3f41;
-            color: #ffffff;
-            font-size: 14px;
-        """)
-        error_msg.exec_()
+    def show_message(self, title, message):
+        msg = QMessageBox(self)
+        msg.setWindowTitle(title)
+        msg.setText(message)
+        msg.setStyleSheet("background-color: #3c3f41; color: #ffffff;")
+        msg.exec_()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
