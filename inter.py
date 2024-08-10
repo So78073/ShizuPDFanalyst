@@ -5,15 +5,23 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, QL
                              QPushButton, QRadioButton, QGroupBox, QTextEdit,
                              QFileDialog, QCheckBox, QDialog, QMessageBox)
 
-threshold = 10
+
+colorText = {
+    "alert": "yellow",
+    "error": "red",
+    "accept": "#00FFFF",
+
+    "obs": "#FF00FF"
+}
 
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
 
         # Configurando a janela principal
-        self.setWindowTitle("Nome do App")
+        self.setWindowTitle("@shizu_ankai_netcat   PDF.copyTem.Soft")
         self.setGeometry(100, 100, 600, 400)
+        self.setWindowIcon(QIcon("icon.png"))
         self.setStyleSheet("""
             background-color: #2b2b2b; 
             color: #ffffff;
@@ -68,6 +76,7 @@ class MainWindow(QWidget):
         self.radio_group.setStyleSheet("border: none;")
         radio_layout = QHBoxLayout()
         self.radio_dir = QRadioButton("Diretório")
+        self.radio_dir.setEnabled(False)  
         self.radio_file = QRadioButton("Arquivo")
         self.radio_dir.setStyleSheet("color: #ffffff; font-size: 14px;")
         self.radio_file.setStyleSheet("color: #ffffff; font-size: 14px;")
@@ -77,6 +86,7 @@ class MainWindow(QWidget):
         radio_layout.addWidget(self.radio_dir)
         radio_layout.addWidget(self.radio_file)
         self.radio_group.setLayout(radio_layout)
+        self.radio_dir.setEnabled(False)
 
         # Campo de texto para debug/log (somente leitura)
         self.log_text = QTextEdit()
@@ -94,21 +104,22 @@ class MainWindow(QWidget):
         self.function_group.setStyleSheet("border: none;")
         function_layout = QHBoxLayout()
         self.checkbox_func1 = QCheckBox("Contar P/B ou Color")
-        self.checkbox_func2 = QCheckBox("Nenhuma")
-        self.checkbox_func3 = QCheckBox("Nenhuma")
+        self.checkbox_func2 = QCheckBox("'/, de cor do pdf ")
         self.checkbox_func4 = QCheckBox("Separar para analisar")
         self.checkbox_func1.setStyleSheet("color: #ffffff; font-size: 14px;")
         self.checkbox_func2.setStyleSheet("color: #ffffff; font-size: 14px;")
-        self.checkbox_func3.setStyleSheet("color: #ffffff; font-size: 14px;")
         self.checkbox_func4.setStyleSheet("color: #ffffff; font-size: 14px;")
+
+        self.checkbox_func1.setChecked(True)
+        self.checkbox_func2.setChecked(True)
+        self.checkbox_func4.setChecked(True)
+        
         self.checkbox_func1.toggled.connect(self.update_checkbox_color)
         self.checkbox_func2.toggled.connect(self.update_checkbox_color)
-        self.checkbox_func3.toggled.connect(self.update_checkbox_color)
         self.checkbox_func4.toggled.connect(self.update_checkbox_color)
         self.checkbox_func4.stateChanged.connect(self.toggle_additional_options)
         function_layout.addWidget(self.checkbox_func1)
         function_layout.addWidget(self.checkbox_func2)
-        function_layout.addWidget(self.checkbox_func3)
         function_layout.addWidget(self.checkbox_func4)
         self.function_group.setLayout(function_layout)
 
@@ -147,19 +158,19 @@ class MainWindow(QWidget):
             directory = QFileDialog.getExistingDirectory(self, "Escolher Diretório")
             if directory:
                 self.selected_path = directory
-                self.log_text.append(f"Diretório escolhido: {directory}")
+                self.update_log(f"Diretório escolhido: {directory}", "alert")
 
         elif self.radio_file.isChecked():
             file, _ = QFileDialog.getOpenFileName(self, "Escolher Arquivo")
             if file:
                 self.selected_path = file
-                self.log_text.append(f"Arquivo escolhido: {file}")
+                self.update_log(f"Arquivo escolhido: {file}", "alert")
 
     def choose_output_directory(self):
         directory = QFileDialog.getExistingDirectory(self, "Escolher Diretório de Saída", self.default_output_dir)
         if directory:
             self.output_path = directory
-            self.log_text.append(f"Diretório de saída escolhido: {directory}")
+            self.update_log(f"Diretório de saída escolhido: {directory}", "alert")
 
     def update_choose_button_text(self):
         if self.radio_dir.isChecked():
@@ -184,64 +195,60 @@ class MainWindow(QWidget):
 
         self.checkbox_func1.setStyleSheet(f"color: {get_checkbox_color(self.checkbox_func1)}; font-size: 14px;")
         self.checkbox_func2.setStyleSheet(f"color: {get_checkbox_color(self.checkbox_func2)}; font-size: 14px;")
-        self.checkbox_func3.setStyleSheet(f"color: {get_checkbox_color(self.checkbox_func3)}; font-size: 14px;")
+
         self.checkbox_func4.setStyleSheet(f"color: {get_checkbox_color(self.checkbox_func4)}; font-size: 14px;")
 
-    def analyze_pdf(self, threshold):
-        # Função que será executada
-        result = func.analyze_pdf(self.selected_path, threshold)
-        # Atualize a interface do usuário com os resultados
-        self.update_log(result)
+    def format_log_message(self, message, color_key):
+        color = colorText.get(color_key, "#ffffff")
+        return f'<span style="color: {color};">{message}</span>'
 
-    def create_pdf_with_color_pages(self, output_path_color, output_path_bw, mode=(True, False)):
-        func.create_pdf_with_color_pages(self.selected_path, output_path_color, output_path_bw, mode)
-        self.update_log(f"PDF com páginas coloridas e P/B criado em: {output_path_color}, {output_path_bw}")
+    def show_progress_message(self, message):
+        self.log_text.append(self.format_log_message(message, "alert"))
+        QApplication.processEvents()  # Atualiza a interface do usuário
 
-    def analyze_for_printing(self, input_path, output_path_color, output_path_bw, separate_color, separate_bw):
-        # Funções de análise adicionais
-
-        # -- AQUII --
-        if self.checkbox_func2.isChecked():
-            func.some_other_function_1(input_path, output_path_color, separate_color)
-        if self.checkbox_func3.isChecked():
-            func.some_other_function_2(input_path, output_path_bw, separate_bw)
-        if self.checkbox_func4.isChecked():
-            self.create_pdf_with_color_pages(output_path_color, output_path_bw, (separate_color, separate_bw))
 
     def on_send_clicked(self):
         if not self.selected_path:
-            QMessageBox.warning(self, "Atenção", "Por favor, escolha um diretório ou arquivo.")
+            self.update_log("Nenhum diretório ou arquivo escolhido.", "error")
             return
 
-        if not self.output_path:
-            QMessageBox.warning(self, "Atenção", "Por favor, escolha um diretório de saída.")
-            return
+        # Determinar o modo com base nos checkboxes
+        mode = (self.checkbox_additional1.isChecked(), self.checkbox_additional2.isChecked())
 
-        # Verifique qual função foi selecionada e chame-a
-        if self.checkbox_func1.isChecked():
-            self.analyze_pdf(threshold)
+        # Mostrar mensagem de progresso
+        self.show_progress_message(f"<span style='color: {colorText['obs']};'>Iniciando análise...\nO Software não travou, estamos apenas analizando seu arquivo ^^ se estiver demorando muito é por que o arquivo é bem grande .</span>")
 
-        if self.checkbox_func4.isChecked():
-            separate_color = self.checkbox_additional1.isChecked()
-            separate_bw = self.checkbox_additional2.isChecked()
-            output_path_color = os.path.join(self.output_path, 'coloridas.pdf')
-            output_path_bw = os.path.join(self.output_path, 'preto_e_branco.pdf')
-            
-            self.analyze_for_printing(self.selected_path, output_path_color, output_path_bw, separate_color, separate_bw)
+        # Executar a função principal com os parâmetros corretos
+        try:
+            mainFunction = func.main(
+                threshold=10, 
+                pdf_path=self.selected_path,  # Use o caminho selecionado
+                output_pdf_path_color=os.path.join(self.output_path, "comCor.pdf"),
+                output_pdf_path_bw=os.path.join(self.output_path, "semCor.pdf"),
+                mode=mode,
+                mods=(self.checkbox_func1.isChecked(), self.checkbox_func2.isChecked(), self.checkbox_func4.isChecked())
+            )
 
-        self.log_text.append("Análise concluída.")
 
-    def update_log(self, message):
-        self.log_text.append(message)
+            self.log_text.append(f'''<span style="color: {colorText['accept']};">
+Paginas coloridas: {str(mainFunction['analyze_pdf'][0])}<br>
+Paginas P/B: {str(mainFunction['analyze_pdf'][1])}<br><br>
+Paginas Geradas pelo app: {str(mainFunction['create_pdf_with_color_pages'])} ( parta output padrão pelo software)<br><br>
+Porcentagem de cor: {str(mainFunction['analyze_pdf_colors'])}
+</span>''')
 
-    def show_message(self, title, message):
-        msg = QMessageBox(self)
-        msg.setWindowTitle(title)
-        msg.setText(message)
-        msg.setStyleSheet("background-color: #3c3f41; color: #ffffff;")
-        msg.exec_()
 
-if __name__ == "__main__":
+
+            self.show_progress_message(f"<span style='color: {colorText['obs']};>Análise concluída.<>/span")
+        except Exception as e:
+            self.update_log(f"Ocorreu um erro: {e}", "error")
+
+
+    def update_log(self, message, color_key="white"):
+        formatted_message = self.format_log_message(message, color_key)
+        self.log_text.append(formatted_message)
+
+if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
