@@ -4,7 +4,7 @@ import functions as func
 from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                              QPushButton, QRadioButton, QGroupBox, QTextEdit,
                              QFileDialog, QCheckBox, QDialog, QMessageBox)
-
+from PyQt5.QtGui import QIcon 
 
 colorText = {
     "alert": "yellow",
@@ -19,9 +19,9 @@ class MainWindow(QWidget):
         super().__init__()
 
         # Configurando a janela principal
-        self.setWindowTitle("@shizu_ankai_netcat   PDF.copyTem.Soft")
+        self.setWindowTitle("@shizu_ankai_netcat   PDF.copyTem")
         self.setGeometry(100, 100, 600, 400)
-        self.setWindowIcon(QIcon("icon.png"))
+        self.setWindowIcon(QIcon("data/assets/icon.png"))
         self.setStyleSheet("""
             background-color: #2b2b2b; 
             color: #ffffff;
@@ -230,14 +230,12 @@ class MainWindow(QWidget):
             )
 
 
-            self.log_text.append(f'''<span style="color: {colorText['accept']};">
+            self.log_text.append(f'''<br><span style="color: {colorText['accept']};">
 Paginas coloridas: {str(mainFunction['analyze_pdf'][0])}<br>
 Paginas P/B: {str(mainFunction['analyze_pdf'][1])}<br><br>
-Paginas Geradas pelo app: {str(mainFunction['create_pdf_with_color_pages'])} ( parta output padrão pelo software)<br><br>
+Paginas Geradas pelo app: {str(mainFunction['create_pdf_with_color_pages'])} -- pasta 'output' padrão pelo software <br><br>
 Porcentagem de cor: {str(mainFunction['analyze_pdf_colors'])}
 </span>''')
-
-
 
             self.show_progress_message(f"<span style='color: {colorText['obs']};>Análise concluída.<>/span")
         except Exception as e:
