@@ -28,13 +28,19 @@ def analyze_pdf(pdf_path, threshold=10, result_container=None, index=None):
             else:
                 bw_pages += 1
         
+        # Se result_container e index são usados, armazene os resultados lá
         if result_container is not None and index is not None:
             result_container[index] = (color_pages, bw_pages)
+        else:
+            # Caso contrário, retorne os resultados diretamente
+            return color_pages, bw_pages
 
     except Exception as e:
         print(f"Erro ao abrir o arquivo PDF: {e}")
         if result_container is not None and index is not None:
             result_container[index] = (None, None)
+        else:
+            return None, None
 
 def create_pdf_with_color_pages(pdf_path, output_pdf_path_color, output_pdf_path_bw, mode=(True, False), result_container=None, index=None):
     try:
@@ -52,12 +58,17 @@ def create_pdf_with_color_pages(pdf_path, output_pdf_path_color, output_pdf_path
             else:
                 pdf_bw.insert_pdf(doc, from_page=page_num, to_page=page_num)
 
-        if mode[0] and not os.path.exists(os.path.dirname(output_pdf_path_color)):
-            os.makedirs(os.path.dirname(output_pdf_path_color))
+        if mode[0]:
+            color_dir = os.path.dirname(output_pdf_path_color)
+            if not os.path.exists(color_dir):
+                os.makedirs(color_dir)
             pdf_color.save(output_pdf_path_color)
             print(f"PDF com páginas coloridas salvo em {output_pdf_path_color}")
-        if mode[1] and not os.path.exists(os.path.dirname(output_pdf_path_bw)):
-            os.makedirs(os.path.dirname(output_pdf_path_bw))
+
+        if mode[1]:
+            bw_dir = os.path.dirname(output_pdf_path_bw)
+            if not os.path.exists(bw_dir):
+                os.makedirs(bw_dir)
             pdf_bw.save(output_pdf_path_bw)
             print(f"PDF com páginas preto e branco salvo em {output_pdf_path_bw}")
 
@@ -82,7 +93,7 @@ def analyze_color_percentage(image, threshold=10):
         return color_percentage
     return 0
 
-def analyze_pdf_colors(pdf_path, threshold=10, result_container=None, index=None):
+def analyze_pdf_colors( pdf_path, threshold=10, result_container=None, index=None):
     try:
         doc = fitz.open(pdf_path)
         total_color_percentage = 0
@@ -107,7 +118,7 @@ def analyze_pdf_colors(pdf_path, threshold=10, result_container=None, index=None
         if result_container is not None and index is not None:
             result_container[index] = None
 
-def main(threshold, pdf_path, output_pdf_path_color, output_pdf_path_bw, mode=(True, False), mods=(False, False, False)):
+def main( threshold, pdf_path, output_pdf_path_color, output_pdf_path_bw, mode=(True, False), mods=(False, False, False)):
     result_container = [None] * 3  # Para armazenar os resultados das threads
 
     # Criar threads para cada função
@@ -119,7 +130,7 @@ def main(threshold, pdf_path, output_pdf_path_color, output_pdf_path_bw, mode=(T
         thread2 = threading.Thread(target=create_pdf_with_color_pages, args=(pdf_path, output_pdf_path_color, output_pdf_path_bw, mode, result_container, 1))
         threads.append(thread2)
     if mods[1]:
-        thread3 = threading.Thread(target=analyze_pdf_colors, args=(pdf_path, threshold, result_container, 2))
+        thread3 = threading.Thread(target=analyze_pdf_colors, args=( pdf_path, threshold, result_container, 2))
         threads.append(thread3)
 
     # Iniciar as threads
@@ -152,10 +163,10 @@ def main(threshold, pdf_path, output_pdf_path_color, output_pdf_path_bw, mode=(T
 if __name__ == "__main__":
     result = main(
         threshold=10, 
-        pdf_path="Fichário.pdf",
+        pdf_path="aaa.pdf",  # Substitua pelo caminho correto do PDF
         output_pdf_path_color="output/comCor.pdf",
         output_pdf_path_bw="output/semCor.pdf",
         mode=(True, True),
-        mods=(True, True, True)
+        mods=(True, False, False)
     )
     print('\n' + str(result))

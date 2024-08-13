@@ -112,7 +112,7 @@ class MainWindow(QWidget):
 
         self.checkbox_func1.setChecked(True)
         self.checkbox_func2.setChecked(True)
-        self.checkbox_func4.setChecked(True)
+
         
         self.checkbox_func1.toggled.connect(self.update_checkbox_color)
         self.checkbox_func2.toggled.connect(self.update_checkbox_color)
