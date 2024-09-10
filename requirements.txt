@@ -1,0 +1,4 @@
+PyMuPDF==1.22.5
+Pillow==10.0.0
+numpy==1.25.2
+PyQt5==5.15.7

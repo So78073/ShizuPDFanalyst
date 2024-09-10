@@ -1,0 +1,23 @@
+MIT License
+
+Copyright (c) [ano] [Pedro Lucas Soares de Assis]
+
+Permissão é concedida, gratuitamente, a qualquer pessoa que obtenha uma cópia
+deste software e dos arquivos de documentação associados (o "Software"), para lidar
+no Software sem restrição, incluindo, sem limitação, os direitos de usar, copiar,
+modificar, mesclar, publicar, distribuir, sublicenciar e/ou vender cópias do
+Software, sujeito às seguintes condições:
+
+Através da inclusão da cópia do aviso de copyright e desta permissão nas
+cópias ou partes substanciais do Software.
+
+O Software é fornecido "no estado em que se encontra", sem garantia de qualquer
+tipo, expressa ou implícita, incluindo, mas não se limitando às garantias
+implícitas de comercialização, adequação a um fim específico e não violação.
+Em nenhum caso o(s) autores ou detentores dos direitos autorais serão responsáveis
+por qualquer reclamação, dano ou outra responsabilidade, seja em uma ação de contrato,
+ato ilícito ou de outra forma, decorrente de, ou em conexão com o Software ou
+o uso ou outros negócios no Software.
+
+[2024] - O ano atual
+[Shizu.dev] - Seu nome ou o nome da sua organização
